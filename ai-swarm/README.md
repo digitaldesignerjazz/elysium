@@ -1,51 +1,42 @@
 # AI Agent Swarm Framework
 
-**Elysium AI Agent Swarm Framework** — Self-improving, tool-using, swarm-intelligent agents.
+**Elysium AI Agent Swarm Framework** — Self-improving, tool-using agents with automatic schema inference.
 
-## Core Capabilities
+## Custom Tool Registration (Now Even Easier)
 
-- LLM-powered reasoning (Grok/xAI) with memory context
-- Persistent individual + **Swarm Memory**
-- Memory Consolidation (heuristic + LLM)
-- Individual & Swarm-Level Self-Improvement
-- **Tool Use via Function Calling**
-- Specialized Agents + easy custom tool registration
-
-## Custom Tool Registration
-
-Easily add your own tools:
+You no longer need to write full JSON schemas. The framework automatically infers them from your function signature and type hints:
 
 ```python
 agent = BaseAgent(role="Researcher", llm_client=llm)
 
-def my_tool(query: str):
-    return f"Result for {query}"
+def analyze_decentralized_system(topic: str, depth: int = 3) -> str:
+    """Analyze a topic in decentralized systems."""
+    return f"Analysis of {topic} at depth {depth}"
 
+# Just register the function — schema is inferred automatically!
 agent.register_function(
-    name="my_custom_tool",
-    description="My custom capability.",
-    func=my_tool
+    name="analyze_decentralized_system",
+    description="Analyzes topics related to mesh, blockchain, and AI swarms.",
+    func=analyze_decentralized_system
 )
 
-# Or pass at init
-agent = BaseAgent(..., tools=[custom_tool1, custom_tool2])
+# You can still provide a manual schema if you want full control
+agent.register_function(
+    name="advanced_tool",
+    description="...",
+    func=some_func,
+    parameters={...}   # Optional override
+)
 ```
 
-The agent will automatically use registered tools via function calling when appropriate.
+Supported type hints: `str`, `int`, `float`, `bool`, `List`, `Dict` (falls back to string for complex types).
 
-## Quick Start
+## Full Capabilities
 
-```bash
-pip install -r requirements.txt
-python examples/basic_research_swarm.py
-```
+- Automatic JSON schema inference for tools
+- Native function calling with Grok/xAI
+- Persistent Vector Memory + Swarm Memory
+- Self-Improvement (individual + swarm level)
+- Specialized agents + easy custom tools
 
-## Full Feature Set
-
-- ToolRegistry + native function calling
-- VectorMemory + SwarmMemory
-- Self-Improvement (individual + swarm)
-- Specialized agents (Researcher, Companion, Creative)
-- SwarmOrchestrator
-
-Ready for building advanced autonomous agent systems.
+Ready for production-grade autonomous agent systems.
