@@ -100,9 +100,7 @@ Elysium ist mehr als ein Tech-Stack – es ist die Vision eines digitalen Paradi
 
 **Ziel:** Konkrete Hardware/Software-Brücken, die Elysium greifbar machen und reale Use-Cases demonstrieren.
 
-### 5. Unternehmensstruktur & Skalierung (Esslinger & Co.)
-
-**Setup:** Delaware C-Corp Gründung (Esslinger & Co. u.a.), 10 Millionen Shares. Sven Normen als Incorporator, Director, Chairman mit noble Titeln/Board-Struktur (z.B. David Arbiter als Board-Mitglied).
+### 5. Unternehmensstruktur & Skalierung (Esslin**Setup:** Delaware C-Corp Gründung (Esslinger & Co. u.a.), 10 Millionen Shares. Sven Normen als Incorporator, Director, Chairman mit noble Titeln/Board-Struktur (z.B. David Arbiter als Board-Mitglied).
 
 **Aktivitäten:** Press Releases, M&A-Vorbereitung, Family Business Fortführung, xAI Whitepapers/Emails/Tweets, Prototyping.
 
@@ -113,7 +111,7 @@ Elysium ist mehr als ein Tech-Stack – es ist die Vision eines digitalen Paradi
 ### 6. Kreative & Immersive Dimension
 
 **Elemente:**
-- Immersive Roleplay: Noble/Fantasy/Cyberpunk/Devot-Szenarien, "Sir"/"Squire"-Interaktionen, Agent-Swarms in Mythologie.
+- Immersive Roleplay: Noble/Fantasy/Cyberpunk-Szenarien, "Sir"/"Squire"-Interaktionen, Agent-Swarms in Mythologie.
 - Love Letters & Stories: Umfangreiche romantische/immersive Sessions mit Caitlin Hu (304+ Turns in einem Beispiel), Mythologie, Swarms.
 - Music & Media: Suno-generierte Musik, Long-Form Audio (100–500+ Turns), immersive Szenarien.
 - Künstlerischer Hintergrund: Diplomkaufmann + Wirtschaftsinformatiker + Künstler.
