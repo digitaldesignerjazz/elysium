@@ -1,5 +1,5 @@
 # AI Agent Swarm Framework - Python Dependencies
-# Elysium Ecosystem | June 2026
+# Elysium Ecosystem | Persistent Vector Memory Update - June 2026
 
 # Core
 pydantic>=2.0
@@ -9,22 +9,19 @@ python-dotenv>=1.0
 # Async & Concurrency
 asyncio
 
-# LLM / AI (xAI Grok compatible - replace with your preferred provider)
-openai>=1.30.0   # or xai-sdk when available
-# tiktoken for token counting (optional but recommended)
+# LLM / AI
+openai>=1.30.0
 
-# Memory & Embeddings (future vector store integration)
-# chromadb>=0.5.0
-# numpy>=1.26
+# Persistent Vector Memory (ChromaDB is the recommended default)
+chromadb>=0.5.0
+sentence-transformers>=3.0.0   # Lightweight local embeddings (all-MiniLM-L6-v2)
 
-# Observability & Logging
+# Observability
 loguru>=0.7.0
 
 # Testing
 pytest>=8.0
 
-# Optional: Mesh / Blockchain later
-# yggdrasil-sdk or custom P2P
-# web3.py for QCoin/EVM integration
-
-# Note: For production Rust performance components, use PyO3 or separate microservices.
+# Future / Optional
+# numpy>=1.26
+# For production: consider Qdrant, Weaviate, or Pinecone for distributed mesh storage
