@@ -1,8 +1,7 @@
-/// XCoin Client mit Agent-to-Agent Payments (Rust)
+/// XCoin Client mit Automatisierten Agent-Zahlungen (Rust)
 ///
-/// Demonstriert, wie AI-Agents untereinander mit XCoin bezahlen können.
-///
-/// Szenario: Ein Monitoring-Agent bezahlt einen DataAgent für Sensor-Daten.
+/// Zeigt, wie Agents autonom Zahlungen auslösen können,
+/// z. B. wenn ein Service erbracht wurde.
 
 use std::collections::VecDeque;
 
@@ -123,64 +122,58 @@ impl XCoinWallet {
         println!("Balance:    {} XCoin", self.balance);
         println!("Staked:     {} XCoin", self.staked);
     }
-
-    pub fn print_history(&self) {
-        println!("\n=== XCoin Transaction History ===");
-        if self.history.is_empty() {
-            println!("No transactions yet.");
-            return;
-        }
-        for tx in &self.history {
-            println!("{:?}", tx);
-        }
-    }
 }
 
-/// Simuliert einen Agent-to-Agent Payment
-fn agent_to_agent_payment(
+/// Automatisierte Zahlung, wenn ein Service erbracht wurde
+fn automated_service_payment(
     payer: &mut XCoinWallet,
     payee: &mut XCoinWallet,
     amount: f64,
-    service: &str,
+    service_description: &str,
 ) {
-    println!("\n--- Agent-to-Agent Payment ---");
-    println!("{} pays {} for: {}", payer.address, payee.address, service);
+    println!("\n[Automated Payment] {} provided service: {}", payee.address, service_description);
+    println!("           Triggering automatic payment of {} XCoin...", amount);
 
-    if payer.send(&payee.address, amount, &format!("Payment for: {}", service)).is_ok() {
-        payee.receive(&payer.address, amount, &format!("Received for: {}", service));
+    if payer.send(&payee.address, amount, service_description).is_ok() {
+        payee.receive(&payer.address, amount, service_description);
+        println!("[Automated Payment] Payment completed successfully.\n");
     }
 }
 
 fn main() {
-    println!("=== XCoin + Agent-to-Agent Payments Demo ===\n");
+    println!("=== Automatisierte Agent-Zahlungen Demo ===\n");
 
-    // Zwei Agents mit eigenen Wallets
     let mut monitoring_agent = XCoinWallet::new("monitoring_agent_alpha");
     let mut data_agent = XCoinWallet::new("data_agent_beta");
 
-    println!("Initial Status:");
+    // Simuliertes Szenario: Monitoring Agent nutzt Data Agent mehrfach
+    println!("Szenario: Monitoring Agent nutzt kontinuierlich Daten vom Data Agent\n");
+
+    // Automatische Zahlungen bei Service-Erbringung
+    automated_service_payment(
+        &mut monitoring_agent,
+        &mut data_agent,
+        42.0,
+        "Soil moisture + temperature data package",
+    );
+
+    automated_service_payment(
+        &mut monitoring_agent,
+        &mut data_agent,
+        38.0,
+        "Real-time environmental sensor stream (5min)",
+    );
+
+    automated_service_payment(
+        &mut monitoring_agent,
+        &mut data_agent,
+        55.0,
+        "Historical soil data analysis report",
+    );
+
+    println!("=== End Status ===");
     monitoring_agent.print_status();
     data_agent.print_status();
 
-    // Agent-to-Agent Payment: Monitoring Agent kauft Sensor-Daten
-    agent_to_agent_payment(
-        &mut monitoring_agent,
-        &mut data_agent,
-        85.0,
-        "Real-time soil sensor data (Soilnova)",
-    );
-
-    // Zweiter Payment: Data Agent bezahlt für prioritären Mesh-Traffic
-    agent_to_agent_payment(
-        &mut data_agent,
-        &mut monitoring_agent,
-        30.0,
-        "Priority mesh routing for 10 minutes",
-    );
-
-    println!("\nFinal Status:");
-    monitoring_agent.print_status();
-    data_agent.print_status();
-
-    println!("\n=== Agent Economy with XCoin is working! ===");
+    println!("\n>>> Automatisierte Agent-Zahlungen funktionieren! <<<");
 }
