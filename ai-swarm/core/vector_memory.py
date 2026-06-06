@@ -1,7 +1,6 @@
-"""VectorMemory - Persistent semantic memory layer using ChromaDB.
+"""VectorMemory - Persistent semantic memory with LLM-powered consolidation.
 
-Now includes Memory Consolidation for long-term agents.
-Part of Elysium AI Agent Swarm Framework.
+Supports both heuristic and high-quality LLM-based memory consolidation.
 """
 
 from __future__ import annotations
@@ -13,10 +12,15 @@ import chromadb
 from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 
+try:
+    from .llm_client import LLMClient
+except ImportError:
+    LLMClient = None  # type: ignore
+
 
 class VectorMemory:
     """
-    Persistent vector memory backed by ChromaDB + Memory Consolidation.
+    Persistent vector memory + LLM-enhanced consolidation.
     """
 
     def __init__(
@@ -26,6 +30,8 @@ class VectorMemory:
         embedding_model_name: str = "all-MiniLM-L6-v2",
         collection_name: Optional[str] = None,
         consolidation_threshold: int = 40,
+        llm_client: Optional[Any] = None,   # LLMClient instance
+        use_llm_for_consolidation: bool = False,
     ):
         self.agent_id = agent_id
         self.persist_directory = persist_directory
@@ -38,6 +44,8 @@ class VectorMemory:
 
         self.collection_name = collection_name or f"agent_{agent_id[:8]}"
         self.consolidation_threshold = consolidation_threshold
+        self.llm_client = llm_client
+        self.use_llm_for_consolidation = use_llm_for_consolidation and (llm_client is not None)
 
         self.embedding_model = SentenceTransformer(embedding_model_name)
 
@@ -82,18 +90,13 @@ class VectorMemory:
             metadatas=[meta],
         )
 
-        # Auto-trigger consolidation if threshold exceeded
         if self.collection.count() > self.consolidation_threshold:
             self.consolidate_memories()
 
         return doc_id
 
     def search_relevant(
-        self,
-        query: str,
-        top_k: int = 5,
-        min_importance: float = 0.0,
-        filter_tags: Optional[List[str]] = None,
+        self, query: str, top_k: int = 5, min_importance: float = 0.0, filter_tags: Optional[List[str]] = None
     ) -> List[Dict[str, Any]]:
         if not query.strip():
             return []
@@ -134,9 +137,7 @@ class VectorMemory:
                 "metadata": all_results["metadatas"][i],
             })
 
-        memories.sort(
-            key=lambda x: x["metadata"].get("timestamp", ""), reverse=True
-        )
+        memories.sort(key=lambda x: x["metadata"].get("timestamp", ""), reverse=True)
         return memories[:limit]
 
     def get_stats(self) -> Dict[str, Any]:
@@ -146,23 +147,22 @@ class VectorMemory:
             "total_memories": self.collection.count(),
             "persist_directory": self.persist_directory,
             "consolidation_threshold": self.consolidation_threshold,
+            "llm_consolidation_enabled": self.use_llm_for_consolidation,
         }
 
     # ------------------------------------------------------------------
-    # MEMORY CONSOLIDATION
+    # MEMORY CONSOLIDATION (now with LLM support)
     # ------------------------------------------------------------------
     def consolidate_memories(
         self,
         min_memories_to_trigger: Optional[int] = None,
-        max_source_memories: int = 15,
-        min_importance_for_summary: float = 0.4,
+        max_source_memories: int = 12,
+        min_importance_for_summary: float = 0.35,
     ) -> Dict[str, Any]:
         """
-        Consolidate many detailed memories into higher-level semantic summaries.
+        Consolidate raw memories into higher-level insights.
 
-        This prevents memory bloat and enables long-term learning.
-        Currently uses heuristic + template-based summarization.
-        Future: Plug in LLM (Grok/xAI) for high-quality abstractive summaries.
+        Uses LLM when available and enabled, otherwise falls back to heuristic.
         """
         threshold = min_memories_to_trigger or self.consolidation_threshold
         current_count = self.collection.count()
@@ -170,10 +170,8 @@ class VectorMemory:
         if current_count < threshold:
             return {"status": "skipped", "reason": "below threshold", "count": current_count}
 
-        # Get recent memories that are candidates for consolidation
         recent_memories = self.get_recent_memories(limit=max_source_memories)
 
-        # Filter to memories worth consolidating
         candidates = [
             m for m in recent_memories
             if m["metadata"].get("importance", 0.5) >= min_importance_for_summary
@@ -183,76 +181,98 @@ class VectorMemory:
         if len(candidates) < 3:
             return {"status": "skipped", "reason": "not enough high-value candidates", "candidates": len(candidates)}
 
-        # Build consolidation input
         memory_texts = []
         for mem in candidates:
             ts = mem["metadata"].get("timestamp", "")[:16]
-            memory_texts.append(f"[{ts}] {mem['content'][:180]}")
+            memory_texts.append(f"[{ts}] {mem['content'][:220]}")
 
-        # === Heuristic + Template Summarization (replaceable with LLM later) ===
-        summary_content = self._generate_consolidation_summary(memory_texts, candidates)
+        # Choose summarization method
+        if self.use_llm_for_consolidation and self.llm_client is not None:
+            summary_content = self._generate_llm_consolidation_summary(memory_texts, candidates)
+            method = "llm"
+        else:
+            summary_content = self._generate_heuristic_consolidation_summary(memory_texts, candidates)
+            method = "heuristic"
 
         if not summary_content:
             return {"status": "failed", "reason": "empty summary"}
 
-        # Store the consolidated memory with high importance
         summary_id = self.add_memory(
             content=summary_content,
             tags=["consolidated", "summary", "semantic"],
-            importance=0.92,
-            emotional_valence=sum(m["metadata"].get("emotional_valence", 0) for m in candidates) / len(candidates),
+            importance=0.93,
+            emotional_valence=sum(m["metadata"].get("emotional_valence", 0) for m in candidates) / max(len(candidates), 1),
             source="consolidation_engine",
             metadata={
                 "consolidated_from_count": len(candidates),
+                "consolidation_method": method,
                 "consolidation_timestamp": datetime.utcnow().isoformat(),
                 "source_memory_ids": [m["id"] for m in candidates],
             },
         )
 
-        # Optional: Mark source memories as consolidated (we keep them for now for auditability)
-        # In future we can prune or move them to an archive collection
-
         return {
             "status": "success",
+            "method": method,
             "summary_id": summary_id,
             "consolidated_memories": len(candidates),
             "new_total": self.collection.count(),
         }
 
-    def _generate_consolidation_summary(
+    def _generate_llm_consolidation_summary(
         self, memory_texts: List[str], candidates: List[Dict]
     ) -> str:
-        """
-        Generate a higher-level summary from raw memories.
-        Currently template + heuristic based. Easy to upgrade to LLM call.
-        """
+        """High-quality abstractive summary using LLM (Grok/xAI recommended)."""
+        if not self.llm_client:
+            return self._generate_heuristic_consolidation_summary(memory_texts, candidates)
+
+        prompt = (
+            "You are an expert memory consolidation engine for autonomous AI agents in the Elysium ecosystem. "
+            "Your job is to synthesize many individual experiences into one or two high-level, actionable insights or patterns. "
+            "Focus on recurring themes, emotional tone, strategic implications, and recommendations for future behavior. "
+            "Be concise but insightful. Output only the consolidated insight.
+
+"
+            "Here are the recent experiences to consolidate:\n\n" + "\n".join(memory_texts)
+        )
+
+        system_prompt = (
+            "You are a precise, thoughtful memory synthesis engine. "
+            "You help AI agents turn raw experience into wisdom. "
+            "Always respond with clear, high-signal insights."
+        )
+
+        try:
+            summary = self.llm_client.simple_completion(prompt=prompt, system_prompt=system_prompt)
+            return f"**LLM-Consolidated Insight**:\n{summary}"
+        except Exception as e:
+            print(f"[VectorMemory] LLM consolidation failed: {e}. Falling back to heuristic.")
+            return self._generate_heuristic_consolidation_summary(memory_texts, candidates)
+
+    def _generate_heuristic_consolidation_summary(
+        self, memory_texts: List[str], candidates: List[Dict]
+    ) -> str:
+        """Fallback heuristic/template-based summarization."""
         if not memory_texts:
             return ""
 
-        # Simple heuristic summary
         themes = set()
         for mem in candidates:
             tags = mem["metadata"].get("tags", [])
             themes.update([t for t in tags if t not in ["action", "reflection"]])
 
-        avg_valence = sum(m["metadata"].get("emotional_valence", 0) for m in candidates) / len(candidates)
-        time_span = "recent period"
+        avg_valence = sum(m["metadata"].get("emotional_valence", 0) for m in candidates) / max(len(candidates), 1)
 
         summary = (
-            f"**Consolidated Insight** ({len(candidates)} experiences over {time_span}):
-"
-            f"Key themes: {', '.join(sorted(themes)) if themes else 'general activity'}.
-"
-            f"Average emotional tone: {avg_valence:+.2f}.
-"
-            f"Main patterns observed: {memory_texts[0][:120]}... and related events.
-"
-            f"Recommendation for future behavior: Continue monitoring these themes and adjust strategy accordingly."
+            f"**Consolidated Insight** ({len(candidates)} experiences):\n"
+            f"Key themes: {', '.join(sorted(themes)) if themes else 'general activity'}.\n"
+            f"Average emotional tone: {avg_valence:+.2f}.\n"
+            f"Observed patterns: {memory_texts[0][:140]}...\n"
+            f"Recommendation: Monitor these themes and adjust strategy or emotional responses accordingly."
         )
         return summary
 
     def get_consolidated_memories(self, limit: int = 10) -> List[Dict[str, Any]]:
-        """Retrieve previously created consolidated summaries."""
         results = self.collection.get(
             where={"tags": {"$in": ["consolidated"]}},
             include=["documents", "metadatas"],
@@ -291,4 +311,4 @@ class VectorMemory:
         )
 
     def __repr__(self):
-        return f"<VectorMemory agent={self.agent_id[:8]} memories={self.collection.count()}>"
+        return f"<VectorMemory agent={self.agent_id[:8]} memories={self.collection.count()} LLM={self.use_llm_for_consolidation}>"
