@@ -100,7 +100,7 @@ Elysium ist mehr als ein Tech-Stack – es ist die Vision eines digitalen Paradi
 
 **Ziel:** Konkrete Hardware/Software-Brücken, die Elysium greifbar machen und reale Use-Cases demonstrieren.
 
-### 5. Unternehmensstruktur & Skalierung (Esslin**Setup:** Delaware C-Corp Gründung (Esslinger & Co. u.a.), 10 Millionen Shares. Sven Normen als Incorporator, Director, Chairman mit noble Titeln/Board-Struktur (z.B. David Arbiter als Board-Mitglied).
+### 5. Unternehmensstruktur & Skalierung (**Setup:** Delaware C-Corp Gründung (Esslinger & Co. u.a.), 10 Millionen Shares. Sven Normen als Incorporator, Director, Chairman mit noble Titeln/Board-Struktur (z.B. David Arbiter als Board-Mitglied).
 
 **Aktivitäten:** Press Releases, M&A-Vorbereitung, Family Business Fortführung, xAI Whitepapers/Emails/Tweets, Prototyping.
 
