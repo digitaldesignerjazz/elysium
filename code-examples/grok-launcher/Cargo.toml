@@ -1,0 +1,14 @@
+[package]
+name = "grok-launcher"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe = "0.27"
+egui = "0.27"
+
+# Future dependencies for real implementation:
+# reqwest = { version = "0.12", features = ["json"] }   # for xAI/Grok API calls
+# tokio = { version = "1", features = ["full"] }         # async runtime
+# serde = { version = "1.0", features = ["derive"] }
+# serde_json = "1.0"
