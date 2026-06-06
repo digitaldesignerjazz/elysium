@@ -1,7 +1,8 @@
-/// XCoin Client Stub mit Staking & Reward Logic (Rust)
+/// XCoin Client mit Agent-to-Agent Payments (Rust)
 ///
-/// Erweiterte Version für die Integration in den Grok Launcher.
-/// Simuliert Staking für Node-Betreiber und Reward-Auszahlungen.
+/// Demonstriert, wie AI-Agents untereinander mit XCoin bezahlen können.
+///
+/// Szenario: Ein Monitoring-Agent bezahlt einen DataAgent für Sensor-Daten.
 
 use std::collections::VecDeque;
 
@@ -77,7 +78,6 @@ impl XCoinWallet {
         println!("✓ Received {} XCoin from {} (memo: {})", amount, from, memo);
     }
 
-    /// Stake XCoin (simuliert Node-Staking für Rewards)
     pub fn stake(&mut self, amount: f64) -> Result<(), String> {
         if amount <= 0.0 {
             return Err("Stake amount must be positive".to_string());
@@ -102,7 +102,6 @@ impl XCoinWallet {
         Ok(())
     }
 
-    /// Simuliert Reward-Auszahlung (z.B. für Node-Betrieb)
     pub fn claim_reward(&mut self, amount: f64) {
         self.balance += amount;
 
@@ -137,21 +136,51 @@ impl XCoinWallet {
     }
 }
 
+/// Simuliert einen Agent-to-Agent Payment
+fn agent_to_agent_payment(
+    payer: &mut XCoinWallet,
+    payee: &mut XCoinWallet,
+    amount: f64,
+    service: &str,
+) {
+    println!("\n--- Agent-to-Agent Payment ---");
+    println!("{} pays {} for: {}", payer.address, payee.address, service);
+
+    if payer.send(&payee.address, amount, &format!("Payment for: {}", service)).is_ok() {
+        payee.receive(&payer.address, amount, &format!("Received for: {}", service));
+    }
+}
+
 fn main() {
-    println!("=== XCoin Rust Client with Staking & Rewards ===\n");
+    println!("=== XCoin + Agent-to-Agent Payments Demo ===\n");
 
-    let mut wallet = XCoinWallet::new("elysium_node_rust_001");
+    // Zwei Agents mit eigenen Wallets
+    let mut monitoring_agent = XCoinWallet::new("monitoring_agent_alpha");
+    let mut data_agent = XCoinWallet::new("data_agent_beta");
 
-    wallet.print_status();
+    println!("Initial Status:");
+    monitoring_agent.print_status();
+    data_agent.print_status();
 
-    // Demo operations
-    let _ = wallet.send("agent_swarm_beta", 120.0, "AI monitoring payment");
-    wallet.receive("mesh_node_042", 60.0, "Node uptime reward");
-    let _ = wallet.stake(300.0);
-    wallet.claim_reward(45.0); // Simulierter Node-Reward
+    // Agent-to-Agent Payment: Monitoring Agent kauft Sensor-Daten
+    agent_to_agent_payment(
+        &mut monitoring_agent,
+        &mut data_agent,
+        85.0,
+        "Real-time soil sensor data (Soilnova)",
+    );
 
-    wallet.print_status();
-    wallet.print_history();
+    // Zweiter Payment: Data Agent bezahlt für prioritären Mesh-Traffic
+    agent_to_agent_payment(
+        &mut data_agent,
+        &mut monitoring_agent,
+        30.0,
+        "Priority mesh routing for 10 minutes",
+    );
 
-    println!("\nNote: Staking & Rewards are simulated. Real on-chain logic later.");
+    println!("\nFinal Status:");
+    monitoring_agent.print_status();
+    data_agent.print_status();
+
+    println!("\n=== Agent Economy with XCoin is working! ===");
 }
