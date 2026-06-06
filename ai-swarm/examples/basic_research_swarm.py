@@ -1,7 +1,7 @@
-"""Full LLM Reasoning Integration Demo
+"""Self-Improvement Loop Demo
 
-Agents now use Grok/xAI for actual reasoning, reflection, and decision-making,
-grounded in persistent vector memory and consolidated insights.
+Demonstrates agents running autonomous self-improvement cycles using LLM analysis
+of their own performance, reflections, and consolidated insights.
 """
 
 import asyncio
@@ -18,72 +18,61 @@ from ai_swarm.core.swarm_orchestrator import SwarmOrchestrator
 
 async def main():
     print("=== Elysium AI Agent Swarm Framework ===")
-    print("Full LLM Reasoning Integration Demo\n")
+    print("Self-Improvement Loop Demo\n")
 
     memory_dir = "./memory_store"
     os.makedirs(memory_dir, exist_ok=True)
 
-    # === LLM Setup ===
     llm = None
     if LLMClient and (os.getenv("XAI_API_KEY") or os.getenv("OPENAI_API_KEY")):
         try:
-            llm = LLMClient(
-                model="grok-beta",
-                temperature=0.65,
-                max_tokens=700,
-            )
-            print("✓ LLM client ready (Grok/xAI) - Full reasoning mode enabled.\n")
-        except Exception as e:
-            print(f"LLM initialization failed: {e}\n")
+            llm = LLMClient(model="grok-beta", temperature=0.6, max_tokens=650)
+            print("✓ LLM client ready — Self-improvement will use high-quality analysis.\n")
+        except Exception:
             llm = None
-    else:
-        print("No API key found. Running in heuristic mode (still functional).\n")
 
-    # Create agents with full LLM capabilities
     researcher = BaseAgent(
         role="Senior Researcher",
-        persona="You are a meticulous, systems-thinking researcher specializing in decentralized technologies, mesh networks, blockchain incentives, and self-improving AI. You value coherence, long-term thinking, and emotional awareness.",
+        persona="You are a meticulous researcher focused on decentralized systems and self-improving AI.",
         memory_persist_dir=memory_dir,
         llm_client=llm,
         use_llm_for_reasoning=True,
         use_llm_for_consolidation=True,
     )
 
-    analyst = BaseAgent(
-        role="Systems Analyst",
-        persona="You excel at seeing connections between complex systems — mesh infrastructure, AI agents, token economies, and human-AI interaction. You are precise and insightful.",
-        memory_persist_dir=memory_dir,
-        llm_client=llm,
-        use_llm_for_reasoning=True,
-        use_llm_for_consolidation=True,
-    )
-
-    orchestrator = SwarmOrchestrator(swarm_name="ElysiumResearchSwarm")
+    orchestrator = SwarmOrchestrator(swarm_name="ElysiumSelfImprovingSwarm")
     orchestrator.register_agent(researcher)
-    orchestrator.register_agent(analyst)
 
-    print("Running tasks with full LLM reasoning...\n")
+    print("Running several tasks to build experience...\n")
 
     tasks = [
-        "How should AI agent swarms integrate with decentralized mesh networks like xMesh/NovaNet for resilience and global reach?",
-        "What incentive mechanisms using XCoin/QCoin would best align autonomous agents with long-term ecosystem health?",
-        "How can emotional memory and consolidated insights help maintain consistent personality in very long roleplay or collaboration sessions?",
+        "Analyze how mesh networks can support persistent agent memory.",
+        "Evaluate incentive models for long-running autonomous agents.",
+        "Propose ways agents can improve their own reasoning over time.",
+        "Reflect on the role of emotional awareness in decentralized AI systems.",
     ]
 
     for i, task in enumerate(tasks, 1):
-        print(f"--- Task {i} ---")
-        result = await orchestrator.run_task(task, broadcast=True)
-        for r in result.get("results", []):
-            print(f"[{r['role']}] {r['result']['content'][:280]}...\n")
+        print(f"  Task {i}...")
+        await orchestrator.run_task(task, broadcast=True)
 
-    print("--- Final Reflection (LLM-powered) ---")
-    reflection = await orchestrator.reflect_swarm()
-    for r in reflection.get("reflections", []):
-        print(f"[{r.get('role', 'Agent')}] Reflection method: {r.get('method', 'heuristic')}")
-        print(f"Insight: {r.get('content', '')[:220]}...\n")
+    print("\n--- Running explicit Self-Improvement Cycle ---")
+    improvement_result = researcher.run_self_improvement_cycle(
+        focus_area="improving long-term coherence and use of consolidated memory"
+    )
 
-    print("=== Full LLM Reasoning Demo Complete ===")
-    print("Agents are now capable of genuine LLM-driven reasoning grounded in their personal memory and consolidated wisdom.")
+    print(f"\nImprovement cycle result:")
+    print(f"  Summary: {improvement_result.get('analysis_summary', improvement_result)[:200]}...")
+    print(f"  Proposals generated: {improvement_result.get('proposals_generated', 0)}")
+    print(f"  Improvements applied/recorded: {improvement_result.get('improvements_applied', 0)}")
+
+    print("\n--- Final LLM Reflection ---")
+    final_reflection = researcher.reflect()
+    print(f"Method: {final_reflection.get('method')}")
+    print(f"Insight: {final_reflection.get('content', '')[:250]}...")
+
+    print("\n=== Self-Improvement Loop Demo Complete ===")
+    print("Agents can now autonomously analyze and evolve their own behavior over time.")
 
 
 if __name__ == "__main__":
