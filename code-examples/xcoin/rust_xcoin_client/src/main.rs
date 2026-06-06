@@ -1,7 +1,8 @@
-/// XCoin Client mit Automatisierten Agent-Zahlungen (Rust)
+/// XCoin Client mit Smart Contract-ähnlicher Zahlungslogik (Rust)
 ///
-/// Zeigt, wie Agents autonom Zahlungen auslösen können,
-/// z. B. wenn ein Service erbracht wurde.
+/// Simuliert bedingte/automatisierte Zahlungen ähnlich wie Smart Contracts.
+///
+/// Beispiel: Zahlung erfolgt nur, wenn die Service-Qualität ausreichend ist.
 
 use std::collections::VecDeque;
 
@@ -115,65 +116,60 @@ impl XCoinWallet {
 
         println!("✓ Claimed {} XCoin reward! New balance: {}", amount, self.balance);
     }
-
-    pub fn print_status(&self) {
-        println!("\n=== XCoin Wallet Status ===");
-        println!("Address:    {}", self.address);
-        println!("Balance:    {} XCoin", self.balance);
-        println!("Staked:     {} XCoin", self.staked);
-    }
 }
 
-/// Automatisierte Zahlung, wenn ein Service erbracht wurde
-fn automated_service_payment(
+/// Smart Contract-ähnliche Regel: Zahlung nur bei ausreichender Qualität
+fn smart_contract_payment(
     payer: &mut XCoinWallet,
     payee: &mut XCoinWallet,
     amount: f64,
-    service_description: &str,
+    service: &str,
+    quality_score: u8,      // 0-100
+    min_quality: u8,        // Mindestqualität für Zahlung
 ) {
-    println!("\n[Automated Payment] {} provided service: {}", payee.address, service_description);
-    println!("           Triggering automatic payment of {} XCoin...", amount);
+    println!("\n[Smart Contract] Evaluating service: {}", service);
+    println!("                Quality Score: {} / 100 (minimum required: {})", quality_score, min_quality);
 
-    if payer.send(&payee.address, amount, service_description).is_ok() {
-        payee.receive(&payer.address, amount, service_description);
-        println!("[Automated Payment] Payment completed successfully.\n");
+    if quality_score >= min_quality {
+        println!("                Condition met ✓ → Executing payment...");
+        if payer.send(&payee.address, amount, service).is_ok() {
+            payee.receive(&payer.address, amount, service);
+            println!("[Smart Contract] Payment executed successfully.\n");
+        }
+    } else {
+        println!("                Condition NOT met ✗ → Payment rejected.\n");
     }
 }
 
 fn main() {
-    println!("=== Automatisierte Agent-Zahlungen Demo ===\n");
+    println!("=== Smart Contract Logic for Agent Payments ===\n");
 
     let mut monitoring_agent = XCoinWallet::new("monitoring_agent_alpha");
     let mut data_agent = XCoinWallet::new("data_agent_beta");
 
-    // Simuliertes Szenario: Monitoring Agent nutzt Data Agent mehrfach
-    println!("Szenario: Monitoring Agent nutzt kontinuierlich Daten vom Data Agent\n");
-
-    // Automatische Zahlungen bei Service-Erbringung
-    automated_service_payment(
+    // Szenario 1: Gute Qualität → Zahlung erfolgt
+    smart_contract_payment(
         &mut monitoring_agent,
         &mut data_agent,
-        42.0,
-        "Soil moisture + temperature data package",
+        50.0,
+        "High-resolution soil sensor data",
+        92,   // Qualität
+        85,   // Mindestqualität
     );
 
-    automated_service_payment(
+    // Szenario 2: Schlechte Qualität → Zahlung wird abgelehnt
+    smart_contract_payment(
         &mut monitoring_agent,
         &mut data_agent,
-        38.0,
-        "Real-time environmental sensor stream (5min)",
+        40.0,
+        "Low-quality / incomplete sensor data",
+        61,   // Qualität
+        85,   // Mindestqualität
     );
 
-    automated_service_payment(
-        &mut monitoring_agent,
-        &mut data_agent,
-        55.0,
-        "Historical soil data analysis report",
-    );
-
-    println!("=== End Status ===");
+    println!("=== Final Status ===");
     monitoring_agent.print_status();
     data_agent.print_status();
 
-    println!("\n>>> Automatisierte Agent-Zahlungen funktionieren! <<<");
+    println!("\n>>> Smart Contract Logic successfully demonstrated! <<<");
 }
