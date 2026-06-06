@@ -1,0 +1,58 @@
+# Elysium .gitignore
+
+# Rust (Grok Launcher)
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & Monitoring
+*.log
+logs/
+
+# Sensitive / Private (never commit)
+.env
+*.pem
+*.key
+secrets/
+private/
+
+# Temporary
+*.tmp
+*.bak
