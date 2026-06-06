@@ -1,16 +1,17 @@
 """
-Swatch Beat Scheduler + XCoin Automatic Payments
+Swatch Beat Scheduler + XCoin Automatic Payments (mit Bedingungen)
 
-Demonstriert, wie Agents automatische XCoin-Zahlungen
-zu bestimmten Swatch Beat Zeiten auslösen können.
+Erweiterte Version mit Conditional Logic ähnlich wie Smart Contracts.
 
-Beispiel-Szenario:
-- Monitoring Agent bezahlt Data Agent alle 100 Beats
-- Um @500 wird eine Reward-Zahlung getriggert
+Mögliche Bedingungen:
+- Qualitätsscore
+- Guthaben
+- Agent-Status
+- Zeitbasierte Regeln
 """
 
 import time
-from typing import Callable
+from typing import Callable, Optional
 
 
 class SimpleXCoinWallet:
@@ -50,38 +51,48 @@ class SimpleXCoinWallet:
         return self.balance
 
 
-class SwatchBeatPaymentScheduler:
+class ConditionalSwatchBeatScheduler:
+    """
+    Erweiterter Scheduler mit Bedingungslogik (Smart Contract Style).
+    """
+
     def __init__(self):
         self.jobs = []
-        self.wallets = {}  # address -> wallet
+        self.wallets = {}
 
     def register_wallet(self, wallet: SimpleXCoinWallet):
         self.wallets[wallet.address] = wallet
 
-    def schedule_payment(
+    def schedule_conditional_payment(
         self,
         from_address: str,
         to_address: str,
         amount: float,
+        condition: Optional[Callable[[], bool]] = None,
         interval_beats: float = None,
         at_beat: float = None,
         memo: str = ""
     ):
-        """Plant eine automatische Zahlung."""
+        """
+        Plant eine bedingte automatische Zahlung.
+
+        Args:
+            condition: Funktion, die True oder False zurückgibt.
+                       Wenn None, wird immer ausgeführt.
+        """
         job = {
             "from": from_address,
             "to": to_address,
             "amount": amount,
             "memo": memo,
-            "type": "payment"
+            "condition": condition,
+            "type": "conditional_payment"
         }
 
         if interval_beats:
-            job["type"] = "recurring_payment"
             job["interval"] = interval_beats
             job["last_run"] = 0.0
         elif at_beat is not None:
-            job["type"] = "scheduled_payment"
             job["target_beat"] = at_beat % 1000
             job["executed_today"] = False
 
@@ -94,18 +105,30 @@ class SwatchBeatPaymentScheduler:
         return (seconds / 86.4) % 1000
 
     def run(self, check_interval: float = 2.0):
-        print("[XCoin Payment Scheduler] Gestartet...\n")
+        print("[Conditional Payment Scheduler] Gestartet...\n")
 
         while True:
             current_beat = self._get_current_beat()
 
             for job in self.jobs:
-                if job["type"] == "recurring_payment":
+                # Prüfe Bedingung (falls vorhanden)
+                condition_met = True
+                if job.get("condition"):
+                    try:
+                        condition_met = job["condition"]()
+                    except Exception as e:
+                        print(f"[Scheduler] Fehler bei Bedingung: {e}")
+                        condition_met = False
+
+                if not condition_met:
+                    continue
+
+                if job.get("interval"):
                     if current_beat - job.get("last_run", 0) >= job["interval"]:
                         self._execute_payment(job)
                         job["last_run"] = current_beat
 
-                elif job["type"] == "scheduled_payment":
+                elif job.get("target_beat") is not None:
                     if (not job.get("executed_today", False) and
                             abs(current_beat - job["target_beat"]) < 1.5):
                         self._execute_payment(job)
@@ -114,7 +137,7 @@ class SwatchBeatPaymentScheduler:
             # Reset daily flags
             if current_beat < 1.0:
                 for job in self.jobs:
-                    if job["type"] == "scheduled_payment":
+                    if job.get("target_beat") is not None:
                         job["executed_today"] = False
 
             time.sleep(check_interval)
@@ -124,53 +147,51 @@ class SwatchBeatPaymentScheduler:
         to_wallet = self.wallets.get(job["to"])
 
         if not from_wallet or not to_wallet:
-            print(f"[Scheduler] Wallet nicht gefunden: {job['from']} -> {job['to']}")
+            print(f"[Scheduler] Wallet nicht gefunden!")
             return
 
         success = from_wallet.send(
             to=job["to"],
             amount=job["amount"],
-            memo=job.get("memo", "Scheduled payment")
+            memo=job.get("memo", "Conditional payment")
         )
 
         if success:
             to_wallet.receive(
                 from_addr=job["from"],
                 amount=job["amount"],
-                memo=job.get("memo", "Scheduled payment")
+                memo=job.get("memo", "Conditional payment")
             )
 
 
 # ====================== DEMO ======================
 if __name__ == "__main__":
-    scheduler = SwatchBeatPaymentScheduler()
+    scheduler = ConditionalSwatchBeatScheduler()
 
-    # Zwei Wallets erstellen
-    monitoring = SimpleXCoinWallet("monitoring_agent", balance=1200)
-    data_agent = SimpleXCoinWallet("data_agent", balance=800)
+    monitoring = SimpleXCoinWallet("monitoring_agent", balance=1500)
+    data_agent = SimpleXCoinWallet("data_agent", balance=600)
 
     scheduler.register_wallet(monitoring)
     scheduler.register_wallet(data_agent)
 
-    # Alle 80 Beats: Monitoring Agent zahlt Data Agent
-    scheduler.schedule_payment(
+    # Bedingung: Nur zahlen, wenn Qualitätsscore > 80
+    def high_quality_data():
+        import random
+        quality = random.randint(70, 100)
+        print(f"   [Condition] Aktueller Qualitätsscore: {quality}")
+        return quality > 80
+
+    # Alle 60 Beats eine bedingte Zahlung
+    scheduler.schedule_conditional_payment(
         from_address="monitoring_agent",
         to_address="data_agent",
-        amount=35.0,
-        interval_beats=80,
-        memo="Automatische Datenfee"
+        amount=45.0,
+        interval_beats=60,
+        condition=high_quality_data,
+        memo="Payment nur bei guter Datenqualität"
     )
 
-    # Um @600: Eine größere Zahlung
-    scheduler.schedule_payment(
-        from_address="monitoring_agent",
-        to_address="data_agent",
-        amount=120.0,
-        at_beat=600,
-        memo="Monatliche Service Fee"
-    )
-
-    print("Starte XCoin Payment Scheduler mit Swatch Beat...")
-    print("(Strg+C zum Beenden)\n")
+    print("Starte Conditional XCoin Payment Scheduler...")
+    print("(Zahlungen erfolgen nur, wenn die Bedingung erfüllt ist)\n")
 
     scheduler.run(check_interval=3.0)
