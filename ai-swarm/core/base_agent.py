@@ -1,7 +1,6 @@
-"""BaseAgent - Full LLM Reasoning Integration.
+"""BaseAgent - Full LLM Reasoning + Self-Improvement Loop.
 
-Agents can now use Grok/xAI (or compatible LLMs) for actual reasoning, decision making,
-and reflection, grounded in persistent vector memory + consolidated insights.
+Agents can now autonomously analyze their performance and propose/evolve improvements.
 """
 
 from __future__ import annotations
@@ -13,8 +12,10 @@ from pydantic import BaseModel, Field
 
 try:
     from .llm_client import LLMClient
+    from .self_improvement_loop import SelfImprovementLoop
 except ImportError:
-    LLMClient = None  # type: ignore
+    LLMClient = None
+    SelfImprovementLoop = None
 
 from .vector_memory import VectorMemory
 
@@ -53,24 +54,20 @@ class BaseAgent:
             use_llm_for_consolidation=self.use_llm_for_consolidation,
         )
 
+        # Self-improvement engine
+        self.self_improvement_loop = SelfImprovementLoop(self) if SelfImprovementLoop else None
+
         self.created_at = datetime.utcnow()
         self.last_active = self.created_at
 
     # ------------------------------------------------------------------
-    # CORE COGNITIVE LOOP (now LLM-powered when available)
+    # CORE COGNITIVE LOOP
     # ------------------------------------------------------------------
 
     def perceive(self, input_data: Any) -> Dict[str, Any]:
         return {"raw": str(input_data), "processed_at": datetime.utcnow().isoformat()}
 
     def reason(self, perception: Dict[str, Any], context: Optional[Dict] = None) -> Dict[str, Any]:
-        """
-        Core reasoning step.
-
-        If LLM is available and enabled, performs rich LLM reasoning grounded in
-        retrieved memories + consolidated insights + emotional state.
-        Otherwise falls back to template-based reasoning.
-        """
         raw_input = perception.get("raw", "")
 
         if self.use_llm_for_reasoning and self.llm_client:
@@ -90,43 +87,29 @@ class BaseAgent:
         }
 
     def _llm_reason(self, raw_input: str, context: Optional[Dict] = None) -> Dict[str, Any]:
-        """LLM-powered reasoning using Grok/xAI with memory context."""
-        # Retrieve relevant raw memories
         relevant_memories = self.retrieve_relevant_memories(raw_input, top_k=5)
-        memory_context = "\n".join(
-            [f"- {m['content'][:200]}" for m in relevant_memories]
-        ) if relevant_memories else "No specific past memories retrieved."
+        memory_context = "\n".join([f"- {m['content'][:200]}" for m in relevant_memories]) if relevant_memories else "No specific past memories."
 
-        # Retrieve consolidated insights (higher-level wisdom)
         consolidated = self.vector_memory.get_consolidated_memories(limit=3)
-        consolidated_context = "\n".join(
-            [f"- {c['content'][:220]}" for c in consolidated]
-        ) if consolidated else "No consolidated insights yet."
+        consolidated_context = "\n".join([f"- {c['content'][:220]}" for c in consolidated]) if consolidated else "No consolidated insights yet."
 
         system_prompt = (
             f"You are {self.role}. {self.persona}\n\n"
-            f"Current emotional state: valence={self.emotional_state.valence:.2f}, "
-            f"arousal={self.emotional_state.arousal:.2f}. "
+            f"Current emotional state: valence={self.emotional_state.valence:.2f}, arousal={self.emotional_state.arousal:.2f}. "
             f"Dominant traits: {', '.join(self.emotional_state.dominant_traits)}.\n\n"
-            f"You have access to your persistent memory and consolidated insights from past experiences. "
-            f"Use them to inform your reasoning. Be thoughtful, consistent with your persona, and aligned with "
-            f"Elysium principles: decentralized systems, self-improvement, emotional awareness, and long-term coherence."
+            f"You have access to your persistent memory and consolidated insights. Use them to inform your reasoning. "
+            f"Be thoughtful and aligned with Elysium principles: decentralized systems, self-improvement, emotional awareness."
         )
 
         user_prompt = (
-            f"Current situation / input: {raw_input}\n\n"
-            f"Relevant memories from your experience:\n{memory_context}\n\n"
-            f"Consolidated higher-level insights from your past:\n{consolidated_context}\n\n"
-            f"Think step by step and respond with your reasoning and proposed action or response. "
-            f"Keep it concise but insightful."
+            f"Current situation: {raw_input}\n\n"
+            f"Relevant memories:\n{memory_context}\n\n"
+            f"Consolidated insights:\n{consolidated_context}\n\n"
+            f"Think step by step and provide your reasoning and proposed response or action."
         )
 
         try:
-            llm_response = self.llm_client.simple_completion(
-                prompt=user_prompt,
-                system_prompt=system_prompt,
-            )
-
+            llm_response = self.llm_client.simple_completion(prompt=user_prompt, system_prompt=system_prompt)
             return {
                 "thought": llm_response,
                 "relevant_memories": memory_context,
@@ -135,13 +118,11 @@ class BaseAgent:
                 "method": "llm",
             }
         except Exception as e:
-            print(f"[BaseAgent] LLM reasoning failed: {e}. Falling back to heuristic.")
+            print(f"[BaseAgent] LLM reasoning failed: {e}. Falling back.")
             return self._heuristic_reason(raw_input, context)
 
     def decide(self, reasoning: Dict[str, Any]) -> Dict[str, Any]:
-        """Decide on action based on reasoning output."""
         if reasoning.get("method") == "llm":
-            # LLM already produced thoughtful output; use it directly
             return {
                 "action_type": "respond",
                 "content": reasoning.get("thought", "No clear decision."),
@@ -150,7 +131,6 @@ class BaseAgent:
                 "method": "llm",
             }
         else:
-            # Heuristic decision
             return {
                 "action_type": "respond",
                 "content": reasoning.get("thought", "No action decided."),
@@ -164,9 +144,8 @@ class BaseAgent:
         reasoning = self.reason(perception)
         action = self.decide(reasoning)
 
-        # Store the action + reasoning trace in memory
         self._store_memory(
-            content=f"Action: {action.get('content', '')} | Thought: {reasoning.get('thought', '')[:300]}",
+            content=f"Action: {action.get('content', '')[:200]} | Thought: {reasoning.get('thought', '')[:250]}",
             tags=["action", self.role, reasoning.get("method", "heuristic")],
             importance=0.7,
             emotional_valence=self.emotional_state.valence,
@@ -189,45 +168,49 @@ class BaseAgent:
             emotional_valence=self.emotional_state.valence,
         )
 
+        # Occasionally trigger self-improvement after reflection
+        if self.self_improvement_loop and len(recent) > 10:
+            self.run_self_improvement_cycle(focus_area="overall coherence and learning from recent experiences")
+
         return reflection
 
     def _heuristic_reflect(self, recent_memories: List[Dict]) -> Dict[str, Any]:
         return {
-            "content": f"I have processed {len(recent_memories)} recent experiences. "
-                       f"I should look for patterns and adjust my approach.",
+            "content": f"Processed {len(recent_memories)} recent experiences. Looking for patterns to improve.",
             "method": "heuristic",
-            "suggestion": "Continue monitoring emotional state and memory retrieval quality.",
+            "suggestion": "Continue monitoring memory retrieval and emotional awareness.",
         }
 
     def _llm_reflect(self, recent_memories: List[Dict]) -> Dict[str, Any]:
-        """LLM-powered deep reflection."""
         memory_summary = "\n".join([f"- {m['content'][:160]}" for m in recent_memories])
-
         prompt = (
-            f"You are {self.role}. Reflect deeply on your recent experiences and consolidated insights. "
-            f"Identify patterns, emotional trends, strengths, and areas for improvement. "
-            f"Suggest one concrete behavioral or strategic adjustment.\n\n"
+            f"You are {self.role}. Reflect deeply on your recent experiences. "
+            f"Identify patterns, emotional trends, strengths, and one concrete area for improvement.\n\n"
             f"Recent experiences:\n{memory_summary}"
         )
-
-        system_prompt = (
-            f"You are a wise, self-aware agent in the Elysium ecosystem. "
-            f"Your goal is continuous self-improvement while staying true to your persona."
-        )
+        system_prompt = "You are a wise, self-aware agent focused on continuous improvement while staying true to your persona."
 
         try:
             reflection_text = self.llm_client.simple_completion(prompt=prompt, system_prompt=system_prompt)
             return {
                 "content": reflection_text,
                 "method": "llm",
-                "suggestion": "Apply insights from this reflection to future decisions.",
+                "suggestion": "Apply insights from this reflection.",
             }
         except Exception:
             return self._heuristic_reflect(recent_memories)
 
     # ------------------------------------------------------------------
-    # Memory helpers
+    # SELF-IMPROVEMENT
     # ------------------------------------------------------------------
+
+    def run_self_improvement_cycle(self, focus_area: Optional[str] = None) -> Dict[str, Any]:
+        """Run a full self-improvement cycle using the SelfImprovementLoop."""
+        if self.self_improvement_loop:
+            return self.self_improvement_loop.run_cycle(focus_area=focus_area)
+        else:
+            return {"status": "unavailable", "message": "SelfImprovementLoop not initialized"}
+
     def consolidate_memory(self) -> Dict[str, Any]:
         return self.vector_memory.consolidate_memories()
 
