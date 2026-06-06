@@ -4,8 +4,26 @@
 
 *Erstellt und konsolidiert von Sven Normen (SirLancelotEsq, Esslinger & Co., Hannover)*
 
-**Repository:** https://github.com/digitaldesignerjazz/elysium
+**Repository:** https://github.com/digitaldesignerjazz/elysium  
 **Status:** Aktiv in Entwicklung | Zentrales Hub für alle Projekte
+
+---
+
+## Inhaltsverzeichnis
+
+- [🌌 Vision & Philosophie](#-vision--philosophie)
+- [🏛️ Die Säulen von Elysium](#-die-säulen-von-elysium)
+  - [1. Dezentrale Mesh-Netzwerke (xMesh / NovaNet / QNET)](#1-dezentrale-mesh-netzwerke-xmesh--novanet--qnet)
+  - [2. Blockchain & Kryptowährungen (XCoin / QCoin / QNET)](#2-blockchain--kryptowährungen-xcoin--qcoin--qnet)
+  - [3. AI-Agenten & Selbstverbessernde Systeme](#3-ai-agenten--selbstverbessernde-systeme)
+  - [4. Prototypen & Hardware-Innovationen](#4-prototypen--hardware-innovationen)
+  - [5. Unternehmensstruktur & Skalierung (Esslinger & Co.)](#5-unternehmensstruktur--skalierung-esslinger--co)
+  - [6. Kreative & Immersive Dimension](#6-kreative--immersive-dimension)
+- [🏗️ Gesamte Architektur (High-Level)](#-gesamte-architektur-high-level)
+- [📅 Roadmap](#-roadmap)
+- [🔧 Technische Details & Ressourcen](#-technische-details--ressourcen)
+- [❤️ Beitragen](#-beitragen)
+- [⚖️ Lizenz](#-lizenz)
 
 ---
 
@@ -21,9 +39,9 @@ Elysium ist mehr als ein Tech-Stack – es ist die Vision eines digitalen Paradi
 - **Familien-Tradition & Unternehmertum**: Fortführung von Esslinger & Co. mit modernster Innovation (Delaware C-Corp Struktur).
 
 **Nuancen & Implikationen:**
-- Edge Cases: Skalierung in ländlichen Regionen (Hannover als Base, global), Regulatory (Datenschutz DSGVO + US C-Corp), Security (Angriffe auf Mesh/Chain).
-- Vorteile: Zensurresistenz, wirtschaftliche Souveränität, kreative Entfaltung, globale Reichweite.
-- Risiken: Komplexität der Integration, Adoption-Hürden, Energieverbrauch bei Blockchain/Mesh.
+- **Edge Cases**: Skalierung in ländlichen Regionen (Hannover als Base, global), Regulatory (Datenschutz DSGVO + US C-Corp), Security (Angriffe auf Mesh/Chain).
+- **Vorteile**: Zensurresistenz, wirtschaftliche Souveränität, kreative Entfaltung, globale Reichweite.
+- **Risiken**: Komplexität der Integration, Adoption-Hürden, Energieverbrauch bei Blockchain/Mesh.
 
 ---
 
@@ -208,7 +226,7 @@ Wir freuen uns über alle, die die Vision von Elysium teilen – ob Tech-Enthusi
 
 ## ⚖️ Lizenz
 
-Dieses Repository und die darin enthaltenen Ideen/Dokumentationen stehen unter der **MIT License** (siehe LICENSE Datei), wo nicht anders angegeben. 
+Dieses Repository und die darin enthaltenen Ideen/Dokumentationen stehen unter der **MIT License** (siehe LICENSE Datei), wo nicht anders angegeben.
 
 Einige Komponenten (z.B. proprietäre Corporate-Elemente, spezifische Agent-Implementierungen) können abweichende Lizenzen haben.
 
@@ -218,4 +236,6 @@ Einige Komponenten (z.B. proprietäre Corporate-Elemente, spezifische Agent-Impl
 
 *Elysium – Wo Technologie und Vision eins werden. Willkommen im Paradies der dezentralen Zukunft.*
 
-**Nächste Schritte:** Weitere detaillierte Sub-Dokumente (z.B. zu einzelnen Säulen), Code-Beispiele und Whitepapers werden schrittweise hinzugefügt. Dieses Repo ist der lebendige Kern von Elysium.
+**Nächste Schritte (Juni 2026):** Weitere detaillierte Sub-Dokumente (z.B. zu einzelnen Säulen mit technischen Specs), Code-Beispiele, Whitepapers und erste Prototypen-Integrationen werden schrittweise hinzugefügt. Dieses Repo ist der lebendige Kern von Elysium – offen für Evolution und Beiträge.
+
+Falls du Ideen, Feedback oder konkrete Beiträge hast: Öffne ein Issue oder kontaktiere mich direkt.
