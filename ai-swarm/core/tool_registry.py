@@ -1,15 +1,14 @@
-"""ToolRegistry with robust error handling for tool registration.
+"""ToolRegistry with Automatic JSON Schema Inference.
 
-Provides clear errors for duplicate names, invalid tools, and missing fields.
+Functions can now be registered without manually writing the full parameters schema.
 """
 
 from __future__ import annotations
-from typing import Any, Callable, Dict, List, Optional
+import inspect
+from typing import Any, Callable, Dict, List, Optional, get_type_hints
 
 
 class Tool:
-    """Represents a callable tool that agents can use via function calling."""
-
     def __init__(
         self,
         name: str,
@@ -48,22 +47,17 @@ class Tool:
 
 
 class ToolRegistry:
-    """Registry of tools available to agents. Includes validation and error handling."""
-
     def __init__(self):
         self._tools: Dict[str, Tool] = {}
 
     def register(self, tool: Tool):
-        """Register a Tool object with validation and duplicate checking."""
         if not isinstance(tool, Tool):
             raise TypeError(f"Expected Tool instance, got {type(tool).__name__}")
-
         if tool.name in self._tools:
             raise ValueError(
                 f"Tool '{tool.name}' is already registered. "
-                f"Use a different name or call unregister('{tool.name}') first."
+                f"Use unregister('{tool.name}') first."
             )
-
         self._tools[tool.name] = tool
 
     def register_function(
@@ -73,15 +67,76 @@ class ToolRegistry:
         func: Callable,
         parameters: Optional[Dict[str, Any]] = None,
     ):
-        """Register a function as a tool with validation."""
+        """Register a function as a tool.
+
+        If `parameters` is not provided, automatically infers a JSON schema
+        from the function signature and type hints.
+        """
+        if parameters is None:
+            parameters = self._infer_json_schema(func)
+
         try:
             tool = Tool(name=name, description=description, func=func, parameters=parameters)
             self.register(tool)
         except (ValueError, TypeError) as e:
             raise ValueError(f"Failed to register function '{name}': {e}") from e
 
+    def _infer_json_schema(self, func: Callable) -> Dict[str, Any]:
+        """Automatically generate a basic JSON schema from function signature."""
+        try:
+            sig = inspect.signature(func)
+            type_hints = get_type_hints(func)
+        except Exception:
+            # Fallback if inspection fails
+            return {"type": "object", "properties": {}, "required": []}
+
+        properties = {}
+        required = []
+
+        for param_name, param in sig.parameters.items():
+            if param_name in ("self", "cls"):
+                continue
+
+            # Determine type
+            annotation = type_hints.get(param_name, str)
+            json_type = self._python_type_to_json_type(annotation)
+
+            prop_schema = {"type": json_type}
+
+            # Add description if possible (future improvement)
+            if param.default != inspect.Parameter.empty:
+                prop_schema["description"] = f"Default: {param.default}"
+            else:
+                required.append(param_name)
+
+            properties[param_name] = prop_schema
+
+        return {
+            "type": "object",
+            "properties": properties,
+            "required": required
+        }
+
+    def _python_type_to_json_type(self, py_type: Any) -> str:
+        """Map common Python types to JSON Schema types."""
+        origin = getattr(py_type, "__origin__", None)
+
+        if py_type is str or origin is str:
+            return "string"
+        elif py_type is int or origin is int:
+            return "integer"
+        elif py_type is float or origin is float:
+            return "number"
+        elif py_type is bool or origin is bool:
+            return "boolean"
+        elif origin in (list, List):
+            return "array"
+        elif origin in (dict, Dict):
+            return "object"
+        else:
+            return "string"  # Safe default
+
     def unregister(self, name: str):
-        """Remove a tool by name."""
         if name not in self._tools:
             raise ValueError(f"Tool '{name}' is not registered.")
         del self._tools[name]
@@ -101,7 +156,7 @@ class ToolRegistry:
     def execute(self, name: str, arguments: Dict[str, Any]) -> Any:
         tool = self.get_tool(name)
         if not tool:
-            raise ValueError(f"Tool '{name}' not found in registry.")
+            raise ValueError(f"Tool '{name}' not found.")
         try:
             return tool(**arguments)
         except Exception as e:
