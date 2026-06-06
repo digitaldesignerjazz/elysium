@@ -4,6 +4,33 @@
 
 Dies ist der Startpunkt für die native Desktop-Applikation, die als zentrales Interface für Grok/xAI, AI-Agent-Swarms, Mesh-Netzwerk-Nodes und lokale Prototypen dienen soll.
 
+---
+
+## 🚀 Schnellstart (empfohlen)
+
+```bash
+# 1. Repository klonen (falls noch nicht geschehen)
+git clone https://github.com/digitaldesignerjazz/elysium.git
+cd elysium
+
+# 2. In den Launcher-Ordner wechseln
+cd code-examples/grok-launcher
+
+# 3. Launcher starten
+cargo run
+```
+
+Das öffnet ein natives egui-Fenster mit dem aktuellen MVP-Stub.
+
+---
+
+## Voraussetzungen
+
+- Rust + Cargo installiert (https://rustup.rs)
+- Einigermaßen aktuelle Rust-Version (empfohlen: 1.80+)
+
+---
+
 ## Aktueller Stand (MVP Stub)
 
 - Grundlegendes egui-Fenster mit:
@@ -15,6 +42,10 @@ Dies ist der Startpunkt für die native Desktop-Applikation, die als zentrales I
 - Zeigt die geplante Struktur und Integration points
 
 ## So startest du den Stub
+
+Die obigen Befehle sind die empfohlene und einfachste Methode.
+
+Alternative (wenn du bereits im Repo bist):
 
 ```bash
 cd code-examples/grok-launcher
