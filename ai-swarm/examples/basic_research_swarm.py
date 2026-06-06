@@ -1,12 +1,12 @@
-"""Basic Research Swarm Example - LLM-Powered Memory Consolidation
+"""Full LLM Reasoning Integration Demo
 
-Demonstrates high-quality LLM-based consolidation using Grok/xAI (or any OpenAI-compatible model).
+Agents now use Grok/xAI for actual reasoning, reflection, and decision-making,
+grounded in persistent vector memory and consolidated insights.
 """
 
 import asyncio
 import os
 
-# Optional: import LLMClient for high-quality consolidation
 try:
     from ai_swarm.core.llm_client import LLMClient
 except ImportError:
@@ -18,76 +18,72 @@ from ai_swarm.core.swarm_orchestrator import SwarmOrchestrator
 
 async def main():
     print("=== Elysium AI Agent Swarm Framework ===")
-    print("LLM-Powered Memory Consolidation Demo\n")
+    print("Full LLM Reasoning Integration Demo\n")
 
     memory_dir = "./memory_store"
     os.makedirs(memory_dir, exist_ok=True)
 
-    # === LLM Client Setup (optional but recommended for best results) ===
-    # Set your API key: export XAI_API_KEY=your_key   or   OPENAI_API_KEY=your_key
+    # === LLM Setup ===
     llm = None
     if LLMClient and (os.getenv("XAI_API_KEY") or os.getenv("OPENAI_API_KEY")):
         try:
             llm = LLMClient(
-                # For xAI Grok:
-                # base_url="https://api.x.ai/v1",
-                # model="grok-beta" or "grok-3-latest"
                 model="grok-beta",
-                temperature=0.6,
-                max_tokens=600,
+                temperature=0.65,
+                max_tokens=700,
             )
-            print("LLM client initialized - using high-quality LLM consolidation.\n")
+            print("✓ LLM client ready (Grok/xAI) - Full reasoning mode enabled.\n")
         except Exception as e:
-            print(f"Could not initialize LLM client: {e}\nFalling back to heuristic consolidation.\n")
+            print(f"LLM initialization failed: {e}\n")
             llm = None
     else:
-        print("No LLM API key found. Using heuristic consolidation (still functional).\n")
+        print("No API key found. Running in heuristic mode (still functional).\n")
 
+    # Create agents with full LLM capabilities
     researcher = BaseAgent(
         role="Senior Researcher",
-        persona="You are a meticulous researcher focused on decentralized systems and self-improving AI.",
+        persona="You are a meticulous, systems-thinking researcher specializing in decentralized technologies, mesh networks, blockchain incentives, and self-improving AI. You value coherence, long-term thinking, and emotional awareness.",
         memory_persist_dir=memory_dir,
         llm_client=llm,
-        use_llm_for_consolidation=bool(llm),
+        use_llm_for_reasoning=True,
+        use_llm_for_consolidation=True,
     )
 
     analyst = BaseAgent(
         role="Systems Analyst",
-        persona="You analyze connections between mesh, blockchain, and AI layers.",
+        persona="You excel at seeing connections between complex systems — mesh infrastructure, AI agents, token economies, and human-AI interaction. You are precise and insightful.",
         memory_persist_dir=memory_dir,
         llm_client=llm,
-        use_llm_for_consolidation=bool(llm),
+        use_llm_for_reasoning=True,
+        use_llm_for_consolidation=True,
     )
 
     orchestrator = SwarmOrchestrator(swarm_name="ElysiumResearchSwarm")
     orchestrator.register_agent(researcher)
     orchestrator.register_agent(analyst)
 
-    print("Running tasks to generate rich memory...\n")
+    print("Running tasks with full LLM reasoning...\n")
 
     tasks = [
-        "Research integration patterns between xMesh/NovaNet and AI agent swarms.",
-        "Analyze incentive mechanisms using XCoin/QCoin for autonomous agents.",
-        "Evaluate emotional memory models for long-term roleplay consistency.",
-        "Propose self-improvement mechanisms based on consolidated experience.",
-        "Identify risks in decentralized AI governance and propose mitigations.",
+        "How should AI agent swarms integrate with decentralized mesh networks like xMesh/NovaNet for resilience and global reach?",
+        "What incentive mechanisms using XCoin/QCoin would best align autonomous agents with long-term ecosystem health?",
+        "How can emotional memory and consolidated insights help maintain consistent personality in very long roleplay or collaboration sessions?",
     ]
 
     for i, task in enumerate(tasks, 1):
-        print(f"  Task {i}...")
-        await orchestrator.run_task(task, broadcast=True)
+        print(f"--- Task {i} ---")
+        result = await orchestrator.run_task(task, broadcast=True)
+        for r in result.get("results", []):
+            print(f"[{r['role']}] {r['result']['content'][:280]}...\n")
 
-    print("\n--- Triggering consolidation (LLM or heuristic) ---")
-    result = researcher.consolidate_memory()
-    print(f"Result: {result}")
+    print("--- Final Reflection (LLM-powered) ---")
+    reflection = await orchestrator.reflect_swarm()
+    for r in reflection.get("reflections", []):
+        print(f"[{r.get('role', 'Agent')}] Reflection method: {r.get('method', 'heuristic')}")
+        print(f"Insight: {r.get('content', '')[:220]}...\n")
 
-    print("\n--- Consolidated insights ---")
-    consolidated = researcher.vector_memory.get_consolidated_memories(limit=5)
-    for mem in consolidated:
-        print(f"\n{mem['content'][:350]}...\n")
-
-    print("=== LLM Consolidation Demo Complete ===")
-    print("When using Grok/xAI, consolidated insights are significantly more nuanced and actionable.")
+    print("=== Full LLM Reasoning Demo Complete ===")
+    print("Agents are now capable of genuine LLM-driven reasoning grounded in their personal memory and consolidated wisdom.")
 
 
 if __name__ == "__main__":
