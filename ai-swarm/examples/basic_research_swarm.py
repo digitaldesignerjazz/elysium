@@ -1,6 +1,6 @@
-"""Basic Research Swarm Example - Now with Persistent Vector Memory
+"""Basic Research Swarm Example - With Memory Consolidation
 
-Demonstrates semantic memory, retrieval, and persistence across runs.
+Shows automatic + manual consolidation of experiences into higher-level insights.
 """
 
 import asyncio
@@ -11,12 +11,11 @@ from ai_swarm.core.swarm_orchestrator import SwarmOrchestrator
 
 async def main():
     print("=== Elysium AI Agent Swarm Framework ===")
-    print("Persistent Vector Memory Demo (ChromaDB + sentence-transformers)\n")
+    print("Memory Consolidation Demo\n")
 
     memory_dir = "./memory_store"
     os.makedirs(memory_dir, exist_ok=True)
 
-    # Create agents with persistent memory
     researcher = BaseAgent(
         role="Senior Researcher",
         persona="You are a meticulous researcher focused on decentralized systems.",
@@ -33,48 +32,43 @@ async def main():
     orchestrator.register_agent(researcher)
     orchestrator.register_agent(analyst)
 
-    print("Agents created with persistent vector memory:")
-    for state in orchestrator.list_agents():
-        print(f"  - {state['role']} | Memories: {state['memory_stats']['total_memories']}")
+    print("Running multiple tasks to build up memory...\n")
 
-    # First task
-    print("\n--- Running research task (memories will be stored) ---\n")
-    task1 = "Analyze integration of xMesh/NovaNet with AI agent swarms and XCoin incentives."
-    result1 = await orchestrator.run_task(task1, broadcast=True)
+    tasks = [
+        "Research xMesh and NovaNet integration with AI swarms.",
+        "Analyze how QCoin incentives could motivate agent behavior.",
+        "Evaluate self-improvement loops for long-running agents.",
+        "Propose architecture for emotional memory in roleplay scenarios.",
+        "Summarize risks and opportunities in decentralized AI systems.",
+    ]
 
-    # Show that memories were stored
-    print("\nMemory stats after first task:")
+    for i, task in enumerate(tasks, 1):
+        print(f"Task {i}: {task[:60]}...")
+        await orchestrator.run_task(task, broadcast=True)
+
+    print("\n--- Memory stats before consolidation ---")
     for agent in [researcher, analyst]:
         stats = agent.get_memory_stats()
-        print(f"  {agent.role}: {stats['total_memories']} memories stored in {stats['collection']}")
+        print(f"  {agent.role}: {stats['total_memories']} memories")
 
-    # New agent instance (simulates restart / new process) - memory should persist
-    print("\n--- Simulating agent restart (new instance, same ID) ---")
-    researcher_reloaded = BaseAgent(
-        role="Senior Researcher",
-        persona="You are a meticulous researcher focused on decentralized systems.",
-        agent_id=researcher.agent_id,  # Same ID -> same collection
-        memory_persist_dir=memory_dir,
-    )
+    # Manual consolidation
+    print("\n--- Triggering manual memory consolidation ---")
+    result = researcher.consolidate_memory()
+    print(f"Consolidation result: {result}")
 
-    print(f"Reloaded agent has {researcher_reloaded.vector_memory.collection.count()} memories from disk.")
+    # Check consolidated summaries
+    print("\n--- Consolidated insights created ---")
+    consolidated = researcher.vector_memory.get_consolidated_memories(limit=5)
+    for mem in consolidated:
+        print(f"\n  {mem['content'][:200]}...")
 
-    # Semantic retrieval demo
-    print("\n--- Semantic retrieval demo ---")
-    relevant = researcher_reloaded.retrieve_relevant_memories(
-        "How do mesh networks support AI swarms?", top_k=3
-    )
-    for mem in relevant:
-        print(f"  • {mem['content'][:120]}... (importance={mem['metadata'].get('importance')})")
-
-    # Reflection (now uses vector memory)
-    print("\n--- Reflection ---")
+    # Reflection (also triggers consolidation automatically if many memories)
+    print("\n--- Running reflection (may trigger auto-consolidation) ---")
     reflection = await orchestrator.reflect_swarm()
-    print(f"Swarm reflection complete. Total agents: {reflection['agent_count']}")
 
-    print("\n=== Demo Complete ===")
-    print("Memories are now persisted to ./memory_store/ and survive restarts.")
-    print("Next: Add real LLM calls + self-improvement loop on top of this memory layer.")
+    print("\n=== Memory Consolidation Demo Complete ===")
+    print("Higher-level semantic summaries are now stored alongside raw experiences.")
+    print("This enables better long-term reasoning and self-improvement.")
 
 
 if __name__ == "__main__":
