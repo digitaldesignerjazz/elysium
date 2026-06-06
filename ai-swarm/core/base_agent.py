@@ -1,6 +1,6 @@
-"""BaseAgent - Foundational class for all Elysium AI agents.
+"""BaseAgent - Foundational class with Persistent Vector Memory + LLM-powered Consolidation.
 
-Upgraded with Persistent Vector Memory + Memory Consolidation.
+Supports optional LLMClient for high-quality memory consolidation and future reasoning.
 """
 
 from __future__ import annotations
@@ -9,6 +9,11 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
+
+try:
+    from .llm_client import LLMClient
+except ImportError:
+    LLMClient = None  # type: ignore
 
 from .vector_memory import VectorMemory
 
@@ -27,15 +32,21 @@ class BaseAgent:
         agent_id: Optional[str] = None,
         emotional_state: Optional[EmotionalState] = None,
         memory_persist_dir: str = "./memory_store",
+        llm_client: Optional[Any] = None,
+        use_llm_for_consolidation: bool = False,
     ):
         self.agent_id = agent_id or str(uuid.uuid4())
         self.role = role
         self.persona = persona
         self.emotional_state = emotional_state or EmotionalState()
 
+        self.llm_client = llm_client
+
         self.vector_memory = VectorMemory(
             agent_id=self.agent_id,
-            persist_directory=memory_persist_dir
+            persist_directory=memory_persist_dir,
+            llm_client=llm_client,
+            use_llm_for_consolidation=use_llm_for_consolidation,
         )
 
         self.created_at = datetime.utcnow()
@@ -82,7 +93,7 @@ class BaseAgent:
         reflection_text = (
             f"I have {len(recent)} recent memories. "
             f"Current emotional state: valence={self.emotional_state.valence:.2f}. "
-            "Considering patterns from past experiences for improvement."
+            "Considering patterns from past experiences."
         )
 
         self._store_memory(
@@ -92,7 +103,6 @@ class BaseAgent:
             emotional_valence=self.emotional_state.valence,
         )
 
-        # Occasionally trigger consolidation during reflection
         if len(recent) > 8:
             self.consolidate_memory()
 
@@ -101,11 +111,10 @@ class BaseAgent:
             "role": self.role,
             "recent_memories_count": len(recent),
             "current_emotion": self.emotional_state.model_dump(),
-            "suggestion": "Review consolidated insights for strategic evolution.",
+            "suggestion": "Use consolidated insights to evolve strategy and emotional responses.",
         }
 
     def consolidate_memory(self) -> Dict[str, Any]:
-        """Manually trigger memory consolidation (higher-level summarization)."""
         return self.vector_memory.consolidate_memories()
 
     def _store_memory(
