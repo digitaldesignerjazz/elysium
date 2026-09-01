@@ -1,0 +1,29 @@
+# /etc/systemd/system/elysium-swarm.service
+# Elysium Operations Assistent 1.0 — Schwarm-Daemon
+[Unit]
+Description=Elysium Swarm Daemon (Aura Conductor)
+Documentation=https://github.com/digitaldesignerjazz/elysium
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=elysium
+Group=elysium
+WorkingDirectory=/opt/elysium
+Environment=PATH=/opt/conda/envs/elysium/bin:/usr/local/bin:/usr/bin
+Environment=ELYSIUM_HOME=/opt/elysium
+ExecStart=/opt/conda/envs/elysium/bin/python -m agents.aura.cycle --daemon
+Restart=on-failure
+RestartSec=5
+RestartPreventExitStatus=0
+
+# Sicherheit
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/elysium /var/log/elysium
+
+[Install]
+WantedBy=multi-user.target
