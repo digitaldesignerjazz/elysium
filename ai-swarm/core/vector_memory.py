@@ -186,7 +186,6 @@ class VectorMemory:
             ts = mem["metadata"].get("timestamp", "")[:16]
             memory_texts.append(f"[{ts}] {mem['content'][:220]}")
 
-        # Choose summarization method
         if self.use_llm_for_consolidation and self.llm_client is not None:
             summary_content = self._generate_llm_consolidation_summary(memory_texts, candidates)
             method = "llm"
@@ -226,12 +225,16 @@ class VectorMemory:
         if not self.llm_client:
             return self._generate_heuristic_consolidation_summary(memory_texts, candidates)
 
+        nl = chr(10)
         prompt = (
             "You are an expert memory consolidation engine for autonomous AI agents in the Elysium ecosystem. "
             "Your job is to synthesize many individual experiences into one or two high-level, actionable insights or patterns. "
             "Focus on recurring themes, emotional tone, strategic implications, and recommendations for future behavior. "
-            "Be concise but insightful. Output only the consolidated insight.\n\n"
-            "Here are the recent experiences to consolidate:\n\n" + "\n".join(memory_texts)
+            "Be concise but insightful. Output only the consolidated insight."
+            + nl + nl
+            + "Here are the recent experiences to consolidate:"
+            + nl + nl
+            + nl.join(memory_texts)
         )
 
         system_prompt = (
@@ -242,9 +245,9 @@ class VectorMemory:
 
         try:
             summary = self.llm_client.simple_completion(prompt=prompt, system_prompt=system_prompt)
-            return f"**LLM-Consolidated Insight**:\n{summary}"
+            return "**LLM-Consolidated Insight**:" + nl + summary
         except Exception as e:
-            print(f"[VectorMemory] LLM consolidation failed: {e}. Falling back to heuristic.")
+            print("[VectorMemory] LLM consolidation failed: " + str(e) + ". Falling back to heuristic.")
             return self._generate_heuristic_consolidation_summary(memory_texts, candidates)
 
     def _generate_heuristic_consolidation_summary(
@@ -260,13 +263,14 @@ class VectorMemory:
             themes.update([t for t in tags if t not in ["action", "reflection"]])
 
         avg_valence = sum(m["metadata"].get("emotional_valence", 0) for m in candidates) / max(len(candidates), 1)
-
+        nl = chr(10)
+        theme_text = ", ".join(sorted(themes)) if themes else "general activity"
         summary = (
-            f"**Consolidated Insight** ({len(candidates)} experiences):\n"
-            f"Key themes: {', '.join(sorted(themes)) if themes else 'general activity'}.\n"
-            f"Average emotional tone: {avg_valence:+.2f}.\n"
-            f"Observed patterns: {memory_texts[0][:140]}...\n"
-            f"Recommendation: Monitor these themes and adjust strategy or emotional responses accordingly."
+            "**Consolidated Insight** (" + str(len(candidates)) + " experiences):" + nl
+            + "Key themes: " + theme_text + "." + nl
+            + "Average emotional tone: " + f"{avg_valence:+.2f}." + nl
+            + "Observed patterns: " + memory_texts[0][:140] + "..." + nl
+            + "Recommendation: Monitor these themes and adjust strategy or emotional responses accordingly."
         )
         return summary
 
