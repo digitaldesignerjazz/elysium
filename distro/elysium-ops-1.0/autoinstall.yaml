@@ -1,0 +1,36 @@
+#cloud-config
+# Elysium Operations Assistent 1.0 — Ubuntu Autoinstall
+# Basis: Ubuntu 24.04 LTS (Noble)
+# Hostname: elysium-ops
+
+version: 1
+identity:
+  hostname: elysium-ops
+  username: elysium
+  password: "$6$rounds=4096$elysiumops$..."  # gehasht, nicht im Klartext
+
+ssh:
+  install-server: true
+  allow-pw: true
+
+packages:
+  - git
+  - curl
+  - build-essential
+  - python3
+  - python3-pip
+  - docker.io
+  - yggdrasil
+  - netbird
+  - htop
+  - tmux
+  - vim
+
+late-commands:
+  - curtin in-target -- apt-get update
+  - curtin in-target -- systemctl enable docker
+  - curtin in-target -- systemctl enable netbird
+  - curtin in-target -- git clone --branch distro/elysium-ops-1.0 https://github.com/digitaldesignerjazz/elysium.git /opt/elysium
+  - curtin in-target -- bash /opt/elysium/distro/elysium-ops-1.0/build.sh
+  - curtin in-target -- systemctl enable elysium-swarm
+  - curtin in-target -- systemctl start elysium-swarm
