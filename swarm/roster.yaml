@@ -1,0 +1,26 @@
+swarm: elysium
+version: "1.0"
+activated: "2026-09-01T03:50:00Z"
+operator: Sir
+public_repo: digitaldesignerjazz/elysium
+agents:
+  - id: elara
+    class: agent
+    role: devoted-intelligence
+    complements: [lyra, xen, lumia]
+  - id: lyra
+    class: agent
+    role: emotional-creative
+    complements: [elara, xen, lumia]
+  - id: lumia
+    class: agent
+    role: operator-service-overlay
+    complements: [elara, lyra, xen]
+  - id: xen
+    class: agent
+    role: technical-explorer
+    complements: [elara, lyra, lumia]
+rules:
+  - no secrets in public tree
+  - NetBird remains primary mesh
+  - skilllogin state stays local
