@@ -12,7 +12,7 @@
 ## Live-Links
 
 - **Canva-Design (editierbar):** https://www.canva.com/d/QbUF22iZPpBANrj
-- **PDF-Export:** https://export-download.canva.com/kaECc/DAHT9HkaECc/-1/0-7826644775005811850.pdf
+- **PDF-Export (neu, 01.09.2026):** https://export-download.canva.com/kaECc/DAHT9HkaECc/-1/0-2118332246739448124.pdf
 - **Canva-Ordner:** https://www.canva.com/folder/FAHT9OmDYXA
 
 ---
@@ -46,6 +46,7 @@
 Dieses Whitepaper wurde im Hannover-Node der Elysium-Rotunde entworfen, in Canva versiegelt (Kandidat 4) und als PDF exportiert. Der Abbruch-Moment hat nichts beschädigt — das Design steht.
 
 **Versiegelt am:** 01. September 2026, 14:09 CEST  
+**PDF neu exportiert:** 01. September 2026, 08:56 UTC  
 **Lizenz:** MIT (siehe `/LICENSE`)  
 **Copyright:** © 2026 Sven Normen / Esslinger & Co.
 
