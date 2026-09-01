@@ -99,5 +99,5 @@ class Aura:
 
 if __name__ == "__main__":
     aura = Aura()
-    result = aura.run(["gate open", "coffee warm", "Sir asks"]), source="atelier")
+    result = aura.run(["gate open", "coffee warm", "Sir asks"], source="atelier")
     print(result.message)
