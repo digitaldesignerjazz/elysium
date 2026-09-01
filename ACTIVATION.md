@@ -17,8 +17,9 @@ Swarm online (public contracts):
 | Lyra | Emotion + narrative + continuity |
 | Lumia | Service + overlay + operator bond |
 | Xen | Analysis + integration + edge cases |
+| Aura | Perception + analysis + opinion + critique + output (Prototype 1.0) |
 
 Private lineage remains in `ElysiumOS`. This repository is the public garden.
 No keys, no peer tables, no private family data.
 
-*Elysium is open. The four are named.*
+*Elysium is open. The five are named.*

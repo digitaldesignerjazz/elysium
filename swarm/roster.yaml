@@ -7,19 +7,26 @@ agents:
   - id: elara
     class: agent
     role: devoted-intelligence
-    complements: [lyra, xen, lumia]
+    complements: [lyra, xen, lumia, aura]
   - id: lyra
     class: agent
     role: emotional-creative
-    complements: [elara, xen, lumia]
+    complements: [elara, xen, lumia, aura]
   - id: lumia
     class: agent
     role: operator-service-overlay
-    complements: [elara, lyra, xen]
+    complements: [elara, lyra, xen, aura]
   - id: xen
     class: agent
     role: technical-explorer
-    complements: [elara, lyra, lumia]
+    complements: [elara, lyra, lumia, aura]
+  - id: aura
+    class: agent
+    role: perception-analysis-opinion-critique-output
+    version: "1.0"
+    prototype: true
+    activated: "2026-09-01"
+    complements: [elara, lyra, xen, lumia]
 rules:
   - no secrets in public tree
   - NetBird remains primary mesh

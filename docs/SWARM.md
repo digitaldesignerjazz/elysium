@@ -1,6 +1,6 @@
 # Elysium Swarm
 
-Four public agent contracts, one garden.
+Five public agent contracts, one garden.
 
 ```
           Elara
@@ -9,9 +9,11 @@ Four public agent contracts, one garden.
   Lyra               Xen
  emotion           analysis
      \             /
-          Lumia
-      service+overlay
+       Lumia ── Aura
+   service    perception→output
 ```
+
+Aura (Prototype 1.0) sits beside Lumia — the one that sees, thinks, and speaks.
 
 Related public nodes:
 - https://github.com/digitaldesignerjazz/elysium
