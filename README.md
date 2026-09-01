@@ -9,6 +9,19 @@
 
 ---
 
+## 📄 Whitepaper
+
+Das vollständige Whitepaper liegt als reiner Text im Repo:
+
+- **Plain-Text-Version:** [docs/WHITEPAPER.txt](docs/WHITEPAPER.txt)
+- **Canva-Design (editierbar):** https://www.canva.com/d/QbUF22iZPpBANrj
+- **PDF-Export:** https://export-download.canva.com/kaECc/DAHT9HkaECc/-1/0-2118332246739448124.pdf
+- **Canva-Ordner:** https://www.canva.com/folder/FAHT9OmDYXA
+
+Sieben Folien — vom Schwarm über die Charakterkarten bis zur Einladung. Versiegelt am 01. September 2026.
+
+---
+
 ## Inhaltsverzeichnis
 
 - [🌌 Vision & Philosophie](#-vision--philosophie)
