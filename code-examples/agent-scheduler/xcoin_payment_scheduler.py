@@ -45,7 +45,7 @@ class SimpleXCoinWallet:
             "amount": amount,
             "memo": memo
         })
-        print(f"[{self.address}] ✓ {amount} XCoin von {from_addr} empfangen ({memo)})")
+        print(f"[{self.address}] ✓ {amount} XCoin von {from_addr} empfangen ({memo})")
 
     def get_balance(self):
         return self.balance

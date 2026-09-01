@@ -230,9 +230,7 @@ class VectorMemory:
             "You are an expert memory consolidation engine for autonomous AI agents in the Elysium ecosystem. "
             "Your job is to synthesize many individual experiences into one or two high-level, actionable insights or patterns. "
             "Focus on recurring themes, emotional tone, strategic implications, and recommendations for future behavior. "
-            "Be concise but insightful. Output only the consolidated insight.
-
-"
+            "Be concise but insightful. Output only the consolidated insight.\n\n"
             "Here are the recent experiences to consolidate:\n\n" + "\n".join(memory_texts)
         )
 
