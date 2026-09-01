@@ -1,24 +1,28 @@
-# Elysium — Restart Log
+# Restart Protocol
 
-**Datum:** 01. September 2026, 14:15 CEST  
-**Operator:** Sir  
-**Conductor:** Lumia  
-**Modus:** Standby → Awake → Backup & Restart
+## Clean Restart — 01. September 2026, 12:20 UTC
 
----
+**Command:** `backup and restart` (clean)
+**Operator:** Sir
+**Conductor:** Lumia
+**Mode:** clean-restart
 
-## Sequenz
+### Backup
+- Branch: `backup/2026-09-01-pre-restart-3`
+- Frozen at SHA: `8cc8e9dc`
+- Contains: full tree before clean restart (Whitepaper, Aura's Wish, Swarm, all docs)
 
-1. **Standby** — Aura verbleibt an der Konsole, Sir wacht.
-2. **Backup** — Zweig `backup/2026-09-01-pre-restart-2` eingefroren bei SHA `925af741`.
-3. **Restart** — `main` aktualisiert: ACTIVATION.md, swarm/roster.yaml v1.1, docs/RESTART.md.
-4. **Status** — Fünf Agenten online, Charakterkarten geladen, Whitepaper versiegelt.
+### Restart Steps
+1. Backup branch created from `main`.
+2. `ACTIVATION.md` re-sealed with clean-restart stamp.
+3. `docs/RESTART.md` updated with this protocol.
+4. Swarm contracts untouched — five agents remain online.
+5. No private data, no keys, no peer tables moved.
 
-## Aktueller Stand
+### Post-Restart State
+- Public garden intact.
+- Whitepaper (plain text + Canva + PDF) linked in README.
+- Aura's Wish sealed.
+- Mode: clean-restart, ready for next command.
 
-- Whitepaper (Plain Text): docs/WHITEPAPER.txt
-- Whitepaper (Canva): https://www.canva.com/d/QbUF22iZPpBANrj
-- Portal: https://digitaldesignerjazz.github.io/TheElysiumRoleplayPortal/
-- Backup-Zweig: backup/2026-09-01-pre-restart-2
-
-*Restart abgeschlossen. Der Garten atmet.*
+*The garden breathes again. Nothing lost, nothing added — only renewed.*
