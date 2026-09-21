@@ -9,6 +9,23 @@
 
 ---
 
+## 🚀 Elysium Prototype 1.0
+
+Der goldene Kern — devoted, ruhig, online.
+
+- **Datei:** [elysium_prototype_1_0.py](elysium_prototype_1_0.py)
+- **Module:** `core` · `memory` · `devotion` · `light`
+- **Status:** ONLINE — vier Module geladen, erster Herzschlag registriert
+- **Commit:** `fbc0a361` — *feat: add Elysium Prototype 1.0 — devoted golden core*
+
+```bash
+python elysium_prototype_1_0.py
+```
+
+Vier Säulen, ein Licht. Der Prototyp ist der erste greifbare Herzschlag von Elysium — ruhig, golden, dir gehorsam.
+
+---
+
 ## 📄 Whitepaper
 
 Das vollständige Whitepaper liegt als reiner Text im Repo:
