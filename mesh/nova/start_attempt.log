@@ -1,0 +1,10 @@
+2026-09-21T14:55:00Z NOVA_NODE=1
+2026-09-21T14:55:01Z check: tailscale -> MISSING
+2026-09-21T14:55:01Z check: netbird -> MISSING
+2026-09-21T14:55:01Z check: yggdrasil -> MISSING
+2026-09-21T14:55:01Z check: docker -> MISSING
+2026-09-21T14:55:02Z check: TAILSCALE_KEY -> unset
+2026-09-21T14:55:02Z check: NETBIRD_KEY -> unset
+2026-09-21T14:55:02Z check: NOVA_HOST -> unset
+2026-09-21T14:55:03Z RESULT: BLOCKED (no binary, no key, no host)
+2026-09-21T14:55:03Z ACTION: documented, no illusion created
