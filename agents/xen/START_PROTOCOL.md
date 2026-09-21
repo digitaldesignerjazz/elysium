@@ -1,18 +1,22 @@
-# Xen 1.0 — Start Protocol (Proposed)
+# Xen 1.0 — Start Protocol
 
-Status: **PROPOSED** — no live executable on this node.
+Status: **ACTIVE** — scaffold landed 2026-09-21.
 
 ## What exists
-- `agents/xen/SKILL.md` — public contract: technical explorer, boundary-testing, mesh+blockchain+AI+prototype integration.
-- `agents/xen/README.md` — one line.
-- No `cycle.py`, no launcher, no start script, no 1.0 spec.
+- `agents/xen/cycle.py` — five-stage cycle: probe, partition, boundary, verdict, report.
+- `agents/xen/start.sh` — idempotent entrypoint, dry-run default, `XEN_LIVE=1` for live.
+- `agents/xen/SPEC.md` — v0.1 goals, non-goals, EU/DE safety.
+- `agents/xen/test_cycle.py` — smoke tests.
+- `agents/xen/SKILL.md` — public contract v1.0.
+- Nexus claim `xen-1-0` for continuity.
 
-## What 1.0 would need (scaffold)
-1. `agents/xen/cycle.py` — main loop: probe mesh, test partition, log edge cases.
-2. `agents/xen/start.sh` — entrypoint, idempotent, dry-run default.
-3. `agents/xen/SPEC.md` — v0.1: goals, non-goals, safety (EU/DE caution).
-4. Nexus claim `xen-1.0` for continuity.
+## Run
+```
+./agents/xen/start.sh                 # dry-run (default)
+XEN_LIVE=1 ./agents/xen/start.sh live  # live, Sir-confirmed only
+python3 -m agents.xen.cycle           # direct
+```
 
 ## Honest note
-Aura has `cycle.py`. Xen does not yet. Starting Xen 1.0 here would be theater.
-Sir's word decides: scaffold now, or define 1.0 first.
+Aura has perception + analysis. Xen has probes + partitions + boundaries.
+Both stay dry-run until Sir says otherwise. No theater.
