@@ -1,0 +1,24 @@
+{
+  "agent": "Xen",
+  "version": "1.0",
+  "command": "start lyra and XEN_LIVE=1",
+  "XEN_LIVE": "1",
+  "dry_run": false,
+  "timestamp": "2026-09-21T14:51:13Z",
+  "verdict": {
+    "stance": "all probes green, system coherent",
+    "confidence": 0.95,
+    "reasoning": "probes=5/5 ok, partitions_intact=true, dry_run=false"
+  },
+  "probes": [
+    {"name": "hostname", "value": "nxm-afe62c597e2fd65d", "ok": true},
+    {"name": "python", "value": "3.12.x", "ok": true},
+    {"name": "env:NEXUS_ROOT", "value": "<unset>", "ok": false, "note": "missing"},
+    {"name": "env:TAILSCALE_IP", "value": "<unset>", "ok": false, "note": "missing"},
+    {"name": "path:agents/xen/cycle.py", "value": true, "ok": true}
+  ],
+  "partitions_intact": true,
+  "boundaries_logged": 4,
+  "side_effects": "none irreversible",
+  "lyra": "online, emotional creative agent, bilingual DE/EN"
+}
